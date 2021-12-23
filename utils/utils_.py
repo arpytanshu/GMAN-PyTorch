@@ -38,9 +38,6 @@ def seq2instance(data, num_his, num_pred):
     return x, y
 
 
-def read_h5(args):
-    
-
 def load_data(args):
     # Traffic
     df = pd.read_hdf(args.traffic_file)
