@@ -1,4 +1,4 @@
-
+import torch
 import argparse
 import time
 import torch.optim as optim
@@ -65,10 +65,17 @@ log_string(log, f'mean:   {mean:.4f}\t\tstd:   {std:.4f}')
 log_string(log, 'data loaded!')
 del trainX, trainTE, valX, valTE, testX, testTE, mean, std
 # build model
+
+use_gpu = torch.cuda.is_available()
+if use_gpu: device = torch.device('cuda')
+else: device = torch.device('cpu')
+
 log_string(log, 'compiling model...')
 
+SE = SE.to(torch.float32).to(device)
 model = GMAN(SE, args, bn_decay=0.1)
 loss_criterion = nn.MSELoss()
+model = model.to(device)
 
 optimizer = optim.Adam(model.parameters(), args.learning_rate)
 scheduler = optim.lr_scheduler.StepLR(optimizer,
@@ -76,6 +83,10 @@ scheduler = optim.lr_scheduler.StepLR(optimizer,
                                       gamma=0.9)
 parameters = count_parameters(model)
 log_string(log, 'trainable parameters: {:,}'.format(parameters))
+
+
+#%%
+
 
 if __name__ == '__main__':
     start = time.time()
@@ -91,7 +102,7 @@ if __name__ == '__main__':
     valY_ = valY.numpy().reshape(-1, valY.shape[-1])
     testPred_ = testPred.numpy().reshape(-1, testY.shape[-1])
     testY_ = testY.numpy().reshape(-1, testY.shape[-1])
-
+    
     # Save training, validation and testing datas to disk
     l = [trainPred_, trainY_, valPred_, valY_, testPred_, testY_]
     name = ['trainPred', 'trainY', 'valPred', 'valY', 'testPred', 'testY']

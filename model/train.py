@@ -4,6 +4,10 @@ from utils.utils_ import log_string
 from model.model_ import *
 from utils.utils_ import load_data
 
+use_gpu = torch.cuda.is_available()
+if use_gpu: device = torch.device('cuda')
+else: device = torch.device('cpu')
+
 
 def train(model, args, log, loss_criterion, optimizer, scheduler):
 
@@ -39,9 +43,9 @@ def train(model, args, log, loss_criterion, optimizer, scheduler):
         for batch_idx in range(train_num_batch):
             start_idx = batch_idx * args.batch_size
             end_idx = min(num_train, (batch_idx + 1) * args.batch_size)
-            X = trainX[start_idx: end_idx]
-            TE = trainTE[start_idx: end_idx]
-            label = trainY[start_idx: end_idx]
+            X = trainX[start_idx: end_idx].to(torch.float32).to(device)
+            TE = trainTE[start_idx: end_idx].to(torch.float32).to(device)
+            label = trainY[start_idx: end_idx].to(torch.float32).to(device)
             optimizer.zero_grad()
             pred = model(X, TE)
             pred = pred * std + mean
@@ -66,9 +70,9 @@ def train(model, args, log, loss_criterion, optimizer, scheduler):
             for batch_idx in range(val_num_batch):
                 start_idx = batch_idx * args.batch_size
                 end_idx = min(num_val, (batch_idx + 1) * args.batch_size)
-                X = valX[start_idx: end_idx]
-                TE = valTE[start_idx: end_idx]
-                label = valY[start_idx: end_idx]
+                X = valX[start_idx: end_idx].to(torch.float32).to(device)
+                TE = valTE[start_idx: end_idx].to(torch.float32).to(device)
+                label = valY[start_idx: end_idx].to(torch.float32).to(device)
                 pred = model(X, TE)
                 pred = pred * std + mean
                 loss_batch = loss_criterion(pred, label)
