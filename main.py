@@ -111,3 +111,5 @@ if __name__ == '__main__':
             plt.plot(range(1 + j, 12 + 1 + j), d, c='r')
     plt.title('Test prediction vs Target')
     plt.savefig('./figure/test_results.png')
+
+

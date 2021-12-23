@@ -38,9 +38,16 @@ def seq2instance(data, num_his, num_pred):
     return x, y
 
 
+def read_h5(args):
+    
+
 def load_data(args):
     # Traffic
     df = pd.read_hdf(args.traffic_file)
+    df.index = pd.to_datetime(df.index.values)
+    df = df.asfreq('5min')
+    df.iloc[20184:20184 + 12] = df.iloc[20184-288:20184-288+12].values
+    
     traffic = torch.from_numpy(df.values)
     # train/val/test
     num_step = df.shape[0]
